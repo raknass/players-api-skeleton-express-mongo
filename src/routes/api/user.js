@@ -8,7 +8,7 @@ const router = new Router();
 
 //Create User
 router.post('/', (req, res, next) => {
-  //console.log("User Post");
+  console.log("Creating User");
   const { password, confirm_password } = req.body;
   if (!password || !confirm_password || password !== confirm_password) throw Boom.conflict('Passwords do not match');
   const user = new User(req.body);
@@ -24,23 +24,19 @@ router.post('/', (req, res, next) => {
 });
 
 
+
+
 //Update User
-router.put('/:userId', (req, res, next) => {
-  //console.log("User Update");
-  const { password, confirm_password } = req.body;
-  if (!password || !confirm_password || password !== confirm_password) throw Boom.conflict('Passwords do not match');
-  const user = new User(req.body);
-  user.id = req.params.userId;
-  user
-    .update()
-    .then(() => {
-      res.status(200).send({
-        success: true,
-        token: getToken(user),
-        user
-      });
-    }).catch(next);
-});
+router.put('/:userId', function(req, res) {
+  console.log("Updating User");
+  User.findByIdAndUpdate({_id: req.params.userId}, req.body, {new: true},
+     function(err, user) {
+      if (err) {
+       res.status(500).send('Error in updating User');
+      }
+      res.status(200).send({'success': true, user});
+    });
+  });
 
 const getToken = user => jwt.sign({ userId: user._id }, jwtsecret);
 
